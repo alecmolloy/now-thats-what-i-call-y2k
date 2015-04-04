@@ -1,10 +1,24 @@
 var camera, scene, renderer;
 var cameraControls, effectController;
-var logo;
+var logo, logos = [];
 var clock = new THREE.Clock();
 
-function nowLogo(depth) {
-    depth = depth || 50;
+function fillScene() {
+    scene = new THREE.Scene();
+
+    // Lights
+    var ambientLight = new THREE.AmbientLight(0x333333);
+    var light = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+    light.position.set(200, 400, 500);
+    var light2 = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+    light2.position.set(-500, 250, -200);
+
+    scene.add(ambientLight);
+    scene.add(light);
+    scene.add(light2);
+
+
+    depth = 50;
 
     // Geometries
     var logoNowGeo = new THREE.TextGeometry("NOW", {
@@ -87,37 +101,32 @@ function nowLogo(depth) {
     logoThatsBoxMesh.translateZ(depth / 2);
 
     // Adding to scene
-    nowLogo = new THREE.Object3D();
-    nowLogo.add(logoNowMesh);
-    nowLogo.add(logoThatsMesh);
-    nowLogo.add(logoThatsBoxMesh);
-    nowLogo.add(logoYMesh);
-    nowLogo.add(logo2Mesh);
-    nowLogo.add(logoKMesh);
+    logo = new THREE.Object3D();
+    logo.add(logoNowMesh);
+    logo.add(logoThatsMesh);
+    logo.add(logoThatsBoxMesh);
+    logo.add(logoYMesh);
+    logo.add(logo2Mesh);
+    logo.add(logoKMesh);
 
-    nowLogo.rotateX(Math.PI);
-    nowLogo.rotateY(Math.PI);
+    logo.rotateX(Math.PI);
+    logo.rotateY(Math.PI);
 
-    return nowLogo;
-}
+    for (var i = 0; i < 25; i++) {
+        nowLogo = logo.clone();
 
-function fillScene() {
-    scene = new THREE.Scene();
+        nowLogo.position.x = Math.random() * 2000 - 1000;
+        nowLogo.position.y = Math.random() * 2000 - 1000;
+        nowLogo.position.z = Math.random() * 2000 - 1000;
+        nowLogo.rotation.x = Math.random() * 4;
+        nowLogo.rotation.y = Math.random() * 4;
+        nowLogo.rotation.z = Math.random() * 4;
 
-    // Lights
-    var ambientLight = new THREE.AmbientLight(0x333333);
-    var light = new THREE.DirectionalLight(0xFFFFFF, 1.0);
-    light.position.set(200, 400, 500);
-    var light2 = new THREE.DirectionalLight(0xFFFFFF, 1.0);
-    light2.position.set(-500, 250, -200);
+        logos.push(nowLogo);
 
-    scene.add(ambientLight);
-    scene.add(light);
-    scene.add(light2);
+        scene.add(nowLogo);
+    }
 
-    logo = nowLogo(50);
-
-    scene.add(logo);
 
 }
 
@@ -159,17 +168,21 @@ function addToDOM() {
 
 function animate() {
     window.requestAnimationFrame(animate);
+
+        camera.rotation.y = camera.rotation.y + .001;
+        camera.rotation.x = camera.rotation.x + .001;
+//        camera.rotation.y = Math.sin(Date.now() * 0.0005) / 8;
+//        camera.rotation.x = Math.sin(Date.now() * 0.0010) / 16;
+
+    for (var i = 0; i < logos.length; i++) {
+        logos[i].rotation.y = Math.sin(Date.now() * 0.0005) / 4;
+        logos[i].rotation.x = Math.sin(Date.now() * 0.0010) / 8;
+        logos[i].position.x = logos[i].position.x + Math.sin(Date.now()/10000) * 1;
+    }
     render();
 }
 
 function render() {
-    var delta = clock.getDelta();
-    cameraControls.update(delta);
-
-    logo.rotation.y = Math.sin(Date.now() * 0.0005) / 4;
-    logo.rotation.x = Math.sin(Date.now() * 0.0010) / 8;
-    logo.position.z = Math.sin(Date.now() * 0.0010) * 10;
-
     renderer.render(scene, camera);
 }
 
