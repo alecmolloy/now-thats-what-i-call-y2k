@@ -69,20 +69,22 @@ function fillScene() {
     var logoThatsBoxGeo = new THREE.BoxGeometry(350, 55, depth - 2);
 
     // Materials
-    var material = new THREE.MeshPhongMaterial({
-        color: 0xfceb21
+    var letterMaterial = new THREE.MeshPhongMaterial({
+        color: 0xfceb21,
+        side: THREE.DoubleSide
     });
     var boxMaterial = new THREE.MeshPhongMaterial({
-        color: 0xc92def
+        color: 0xc92def,
+        side: THREE.DoubleSide
     });
 
     // Meshes
-    var logoNowMesh = new THREE.Mesh(logoNowGeo, material);
-    var logoThatsMesh = new THREE.Mesh(logoThatsGeo, material);
+    var logoNowMesh = new THREE.Mesh(logoNowGeo, letterMaterial);
+    var logoThatsMesh = new THREE.Mesh(logoThatsGeo, letterMaterial);
     var logoThatsBoxMesh = new THREE.Mesh(logoThatsBoxGeo, boxMaterial);
-    var logoYMesh = new THREE.Mesh(logoYGeo, material);
-    var logo2Mesh = new THREE.Mesh(logo2Geo, material);
-    var logoKMesh = new THREE.Mesh(logoKGeo, material);
+    var logoYMesh = new THREE.Mesh(logoYGeo, letterMaterial);
+    var logo2Mesh = new THREE.Mesh(logo2Geo, letterMaterial);
+    var logoKMesh = new THREE.Mesh(logoKGeo, letterMaterial);
 
     // Positioning
     logoNowMesh.translateY(40);
@@ -143,7 +145,7 @@ function init() {
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
     renderer.setSize(canvasWidth, canvasHeight);
-    renderer.setClearColor(new THREE.Color(0xffffff, 1));
+    renderer.setClearColor( 0x000000, 1);
 
     var container = document.getElementById('container');
     container.appendChild(renderer.domElement);
