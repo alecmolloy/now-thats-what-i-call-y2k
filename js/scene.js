@@ -8,6 +8,44 @@ Math.average = function (arr) {
     return tot / cnt;
 }
 
+var midnight = 1429314900000;
+//var midnight = Date.now();
+var lastVisit = 0;
+var portal = document.getElementById('saturationTarget');
+var websiteIndex = 0;
+var websites = ['http://web.archive.org/web/20010509091431/http://www.yahooligans.com/',
+ 'http://web.archive.org/web/20010701002920/http://www.apple.com/',
+ 'http://web.archive.org/web/20050615130515/http://www.yahoo.com/',
+ 'http://web.archive.org/web/20060102021922/http://www.google.com/',
+ 'http://web.archive.org/web/20070214130504/http://www.google.com/',
+ 'http://web.archive.org/web/20051126120416/http://www.youtube.com/',
+ 'http://web.archive.org/web/20051126162049/http://youtube.com/?',
+ 'http://web.archive.org/web/20040908164946/http://www2.wikipedia.com/main.shtml',
+ 'http://web.archive.org/web/20060110212505/http://www.wikipedia.org/',
+ 'http://web.archive.org/web/20010331173908/http://www.wikipedia.com/',
+ 'http://web.archive.org/web/20011217182637/http://www.wikipedia.com/',
+ 'http://web.archive.org/web/20150121142541/http://www.drudgereport.com/',
+ 'http://web.archive.org/web/20010301084232/http://www.nyt.com/',
+ 'http://web.archive.org/web/20010118225900/http://www.nyt.com/',
+ 'http://web.archive.org/web/20010516180658/http://www.nyt.com/',
+ 'http://web.archive.org/web/20011114200348/http://nyt.com/',
+ 'http://web.archive.org/web/20010912105526/http://www.nyt.com/',
+ 'http://web.archive.org/web/20011114232932/http://www.nyt.com/',
+ 'http://web.archive.org/web/20080318044032/http://nyt.com/',
+ 'http://web.archive.org/web/20090805022735/http://www.nytimes.com/',
+ 'http://web.archive.org/web/20000229044717/http://www.msn.com/?',
+ 'http://web.archive.org/web/20000510111337/http://www.msn.com/?',
+ 'http://web.archive.org/web/20000621042010/http://www.msn.com/',
+ 'http://web.archive.org/web/20040602193643/http://www.msn.com/',
+ 'http://web.archive.org/web/20040720123928/http://www.msn.com',
+ 'http://web.archive.org/web/20050323094154/http://www.myspace.com/',
+ 'http://web.archive.org/web/20040704033510/http://www.myspace.com/index.cfm?fuseaction=splash',
+ 'http://web.archive.org/web/20020605031604/http://myspace.com/',
+ 'http://web.archive.org/web/20010208191254/http://www.myspace.com/nd_home.asp'
+               ];
+
+var websitesLen = websites.length;
+
 // Three JS controls
 var camera, scene, renderer;
 var cameraControls, effectController;
@@ -19,10 +57,13 @@ var saturationTarget = document.getElementById('saturationTarget');
 var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
 var audioCtx = new AudioContext();
 var source;
+var filter = audioCtx.createBiquadFilter();
+filter.type = (typeof filter.type === 'string') ? 'lowpass' : 0; // LOWPASS
+filter.frequency.value = 100;
 
 // Analyser Node
 var analyser = audioCtx.createAnalyser();
-analyser.fftSize = 32;
+analyser.fftSize = 128;
 var bufferLength = analyser.fftSize;
 var dataArray = new Uint8Array(bufferLength);
 
@@ -35,7 +76,6 @@ navigator.getUserMedia = (navigator.getUserMedia ||
 navigator.webkitGetUserMedia({
     audio: true
 }, gotStream, lostStream);
-
 
 
 function fillScene() {
@@ -208,19 +248,20 @@ function animate() {
 
     // Take sound data, get standard deviation of last n samples, and use that to control the saturation of the target
     analyser.getByteTimeDomainData(dataArray);
+
     var deviation = Math.average(dataArray);
     deviation = ((deviation - 128) * 200) + 128;
-    saturationTarget.style.webkitFilter = 'saturate(' + deviation + '%)';
-    saturationTarget.style.transform = 'rotateY(' + Math.abs(deviation/100 ) + 'deg)';
-    saturationTarget.style.transform = 'rotateX(' + Math.abs(0-deviation/100 ) + 'deg)';
 
-    console.log(deviation);
+    var hueRotation = Math.sin(Date.now() * 0.0000005) * 360;
+
+    saturationTarget.style.webkitFilter = 'saturate(' + deviation + '%) ' + 'hue-rotate(' + hueRotation + 'deg)';
+
+    //    console.log(deviation);
 
     // Rotate THREE camera
     camera.rotation.y = camera.rotation.y + .001;
     camera.rotation.x = camera.rotation.x + .001;
-    //        camera.rotation.y = Math.sin(Date.now() * 0.0005) / 8;
-    //        camera.rotation.x = Math.sin(Date.now() * 0.0010) / 16;
+
 
     for (var i = 0; i < logos.length; i++) {
         logos[i].rotation.y = Math.sin(Date.now() * 0.0005) / 4;
@@ -228,13 +269,27 @@ function animate() {
         logos[i].position.x = logos[i].position.x + Math.sin(Date.now() / 10000) * 1;
     }
     render();
+
+
+    // Check if iframe needs to be changed
+    if (Date.now() - midnight > 300000 + (lastVisit - midnight)) {
+        lastVisit = Date.now();
+        portal.src = websites[websiteIndex];
+        websiteIndex++;
+        if (websiteIndex > websitesLen) {
+            websiteIndex = 0;
+        }
+    }
+
+
 }
 
 function gotStream(stream) {
     source = audioCtx.createMediaStreamSource(stream);
-    source.connect(analyser);
+    source.connect(filter);
+    filter.connect(analyser);
 
-    draw();
+
 }
 
 function lostStream(e) {
