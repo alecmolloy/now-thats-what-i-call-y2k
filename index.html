@@ -25,6 +25,21 @@
         html {
             margin: 0;
             padding: 0;
+            width:100%;
+            height: 100%;
+        }
+        #iframe {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 0;
+            -webkit-filter: blur(5px) saturate(300%);
+        }
+        canvas {
+            position: absolute;
+            top:0;
+            left: 0;
+            z-index: 1;
         }
     </style>
 
@@ -32,6 +47,7 @@
 </head>
 
 <body>
+    <iframe id="iframe" src="http://web.archive.org/web/20010509091431/http://www.yahooligans.com/"></iframe>
     <div id="container"> </div>
     <script type="text/javascript" src="js/three.min.js"></script>
     <script type="text/javascript" src="js/GeometryUtils.js"></script>
