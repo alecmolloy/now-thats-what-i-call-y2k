@@ -1,7 +1,42 @@
+// Add average function to Math library
+Math.average = function (arr) {
+    var cnt = arr.length,
+        tot = 0,
+        i = 0;
+    while (i < cnt)
+        tot += arr[i++];
+    return tot / cnt;
+}
+
+// Three JS controls
 var camera, scene, renderer;
 var cameraControls, effectController;
 var logo, logos = [];
 var clock = new THREE.Clock();
+var saturationTarget = document.getElementById('saturationTarget');
+
+// Audio Context
+var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+var audioCtx = new AudioContext();
+var source;
+
+// Analyser Node
+var analyser = audioCtx.createAnalyser();
+analyser.fftSize = 32;
+var bufferLength = analyser.fftSize;
+var dataArray = new Uint8Array(bufferLength);
+
+// Get microphone
+navigator.getUserMedia = (navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia ||
+    navigator.msGetUserMedia);
+
+navigator.webkitGetUserMedia({
+    audio: true
+}, gotStream, lostStream);
+
+
 
 function fillScene() {
     scene = new THREE.Scene();
@@ -145,7 +180,7 @@ function init() {
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
     renderer.setSize(canvasWidth, canvasHeight);
-    renderer.setClearColor( 0x000000, 0);
+    renderer.setClearColor(0x000000, 0);
 
     var container = document.getElementById('container');
     container.appendChild(renderer.domElement);
@@ -171,26 +206,47 @@ function addToDOM() {
 function animate() {
     window.requestAnimationFrame(animate);
 
-        camera.rotation.y = camera.rotation.y + .001;
-        camera.rotation.x = camera.rotation.x + .001;
-//        camera.rotation.y = Math.sin(Date.now() * 0.0005) / 8;
-//        camera.rotation.x = Math.sin(Date.now() * 0.0010) / 16;
+    // Take sound data, get standard deviation of last n samples, and use that to control the saturation of the target
+    analyser.getByteTimeDomainData(dataArray);
+    var deviation = Math.average(dataArray);
+    deviation = ((deviation - 128) * 200) + 128;
+    saturationTarget.style.webkitFilter = 'saturate(' + deviation + '%)';
+    saturationTarget.style.transform = 'rotateY(' + Math.abs(deviation/100 ) + 'deg)';
+    saturationTarget.style.transform = 'rotateX(' + Math.abs(0-deviation/100 ) + 'deg)';
+
+    console.log(deviation);
+
+    // Rotate THREE camera
+    camera.rotation.y = camera.rotation.y + .001;
+    camera.rotation.x = camera.rotation.x + .001;
+    //        camera.rotation.y = Math.sin(Date.now() * 0.0005) / 8;
+    //        camera.rotation.x = Math.sin(Date.now() * 0.0010) / 16;
 
     for (var i = 0; i < logos.length; i++) {
         logos[i].rotation.y = Math.sin(Date.now() * 0.0005) / 4;
         logos[i].rotation.x = Math.sin(Date.now() * 0.0010) / 8;
-        logos[i].position.x = logos[i].position.x + Math.sin(Date.now()/10000) * 1;
+        logos[i].position.x = logos[i].position.x + Math.sin(Date.now() / 10000) * 1;
     }
     render();
 }
+
+function gotStream(stream) {
+    source = audioCtx.createMediaStreamSource(stream);
+    source.connect(analyser);
+
+    draw();
+}
+
+function lostStream(e) {
+    console.log(e);
+}
+
 
 function render() {
     renderer.render(scene, camera);
 }
 
-window.onload = function () {
-    init();
-    fillScene();
-    addToDOM();
-    animate();
-};
+init();
+fillScene();
+addToDOM();
+animate();
