@@ -16,30 +16,28 @@ var websiteIndex = 0;
 var websites = ['http://web.archive.org/web/20010509091431/http://www.yahooligans.com/',
  'http://web.archive.org/web/20010701002920/http://www.apple.com/',
  'http://web.archive.org/web/20050615130515/http://www.yahoo.com/',
- 'http://web.archive.org/web/20060102021922/http://www.google.com/',
- 'http://web.archive.org/web/20070214130504/http://www.google.com/',
+ 'http://web.archive.org/web/20040602193643/http://www.msn.com/',
  'http://web.archive.org/web/20051126120416/http://www.youtube.com/',
  'http://web.archive.org/web/20051126162049/http://youtube.com/?',
  'http://web.archive.org/web/20040908164946/http://www2.wikipedia.com/main.shtml',
  'http://web.archive.org/web/20060110212505/http://www.wikipedia.org/',
  'http://web.archive.org/web/20010331173908/http://www.wikipedia.com/',
+ 'http://web.archive.org/web/20000229044717/http://www.msn.com/?',
+ 'http://web.archive.org/web/20040720123928/http://www.msn.com',
  'http://web.archive.org/web/20011217182637/http://www.wikipedia.com/',
- 'http://web.archive.org/web/20150121142541/http://www.drudgereport.com/',
+ 'http://web.archive.org/web/20040704033510/http://www.myspace.com/index.cfm?fuseaction=splash',
+ 'http://web.archive.org/web/20060102021922/http://www.google.com/',
+ 'http://web.archive.org/web/20050323094154/http://www.myspace.com/',
+ 'http://web.archive.org/web/20070214130504/http://www.google.com/',
  'http://web.archive.org/web/20010301084232/http://www.nyt.com/',
  'http://web.archive.org/web/20010118225900/http://www.nyt.com/',
  'http://web.archive.org/web/20010516180658/http://www.nyt.com/',
  'http://web.archive.org/web/20011114200348/http://nyt.com/',
  'http://web.archive.org/web/20010912105526/http://www.nyt.com/',
- 'http://web.archive.org/web/20011114232932/http://www.nyt.com/',
- 'http://web.archive.org/web/20080318044032/http://nyt.com/',
- 'http://web.archive.org/web/20090805022735/http://www.nytimes.com/',
- 'http://web.archive.org/web/20000229044717/http://www.msn.com/?',
- 'http://web.archive.org/web/20000510111337/http://www.msn.com/?',
  'http://web.archive.org/web/20000621042010/http://www.msn.com/',
- 'http://web.archive.org/web/20040602193643/http://www.msn.com/',
- 'http://web.archive.org/web/20040720123928/http://www.msn.com',
- 'http://web.archive.org/web/20050323094154/http://www.myspace.com/',
- 'http://web.archive.org/web/20040704033510/http://www.myspace.com/index.cfm?fuseaction=splash',
+ 'http://web.archive.org/web/20080318044032/http://nyt.com/',
+ 'http://web.archive.org/web/20000510111337/http://www.msn.com/?',
+ 'http://web.archive.org/web/20090805022735/http://www.nytimes.com/',
  'http://web.archive.org/web/20020605031604/http://myspace.com/',
  'http://web.archive.org/web/20010208191254/http://www.myspace.com/nd_home.asp'
                ];
@@ -274,11 +272,8 @@ function animate() {
     // Check if iframe needs to be changed
     if (Date.now() - midnight > 300000 + (lastVisit - midnight)) {
         lastVisit = Date.now();
+        websiteIndex = Math.floor(Math.random() * websitesLen);
         portal.src = websites[websiteIndex];
-        websiteIndex++;
-        if (websiteIndex > websitesLen) {
-            websiteIndex = 0;
-        }
     }
 
 
